@@ -12,8 +12,8 @@
 - Discord 봇 토큰(봇이 채널에 글쓰기 권한 필요)
 
 # How to Use
-1. appsettings.Local.example.json을 appsettings.Local.json로 수정 후 빈칸 채우기
-2. appsettings.json에서 받고 싶은 피드를 붙여넣기
+1. appsettings.example.json을 appsettings.json로 수정 후 빈칸 채우기
+2. 실행하기
 
 # Example
 ```
