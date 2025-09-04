@@ -1,5 +1,5 @@
 # Hub2Cord
-깃허브 릴리즈 (.aAtom 피드) → Discord 채널 알림 봇<br>
+깃허브 릴리즈 (.Atom 피드) → Discord 채널 알림 봇<br>
 여러 플러그인(여러 RSS)도 각각 독립적으로 감지하여, 같은 채널로 공지할 수 있어요.
 
 # Features
