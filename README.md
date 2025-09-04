@@ -21,3 +21,7 @@
 🔗 https://github.com/roflmuffin/CounterStrikeSharp/releases/tag/v1.0.xxx
 📝 v1.0.xxx
 📅 20xx-0x-0x 12:00
+
+# Version
+1.0 배포
+1.1 Config 단순화, 코드 최적화
