@@ -2,35 +2,40 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using CodeHollow.FeedReader;
+using System.Reflection;
 
+// Load appsettings.json
 var builder = WebApplication.CreateBuilder(args);
 
-// 설정 파일 로드
-builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
+// Hub2Cord Start
+var asm = Assembly.GetExecutingAssembly();
+var ver = asm.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
+       ?? asm.GetName().Version?.ToString()
+       ?? "1.0.0";
+Console.WriteLine($"⏳ Hub2Cord v{ver} 실행...");       
+
 var config = builder.Configuration;
 
-// 설정 → 환경변수 순으로 폴백
+// BotToken, ChannelId, intervalMinutes
 var token = config["Discord:BotToken"]
-             ?? Environment.GetEnvironmentVariable("discode_bot_token")
+             ?? Environment.GetEnvironmentVariable("discord_bot_token")
              ?? Environment.GetEnvironmentVariable("DISCORD_BOT_TOKEN");
 var channelId = config["Discord:ChannelId"]
              ?? Environment.GetEnvironmentVariable("DISCORD_CHANNEL_ID");
+var intervalMinutes = config.GetValue("CheckIntervalMinutes", 180);
 
 // 다중 RSS: 배열 우선, 없으면 CS#
 var rssUrls = config.GetSection("RssUrls").Get<string[]>()
            ?? new[] { config["RssUrl"] ?? "https://github.com/roflmuffin/CounterStrikeSharp/releases.atom" };
 
-// 체크 반복 시간 설정
-var intervalMinutes = config.GetValue("CheckIntervalMinutes", 180);
-
-// 디버깅
+// error code
 if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(channelId))
 {
     Console.Error.WriteLine("❌ 설정 부족: Discord:BotToken / Discord:ChannelId (또는 환경변수) 를 확인하세요.");
     return;
 }
 
-// HTTP 클라이언트 설정
+// HTTP settings
 var http = new HttpClient();
 http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bot", token);
 http.DefaultRequestHeaders.UserAgent.ParseAdd("Hub2Cord/1.0 (+feed -> discord)");
@@ -92,7 +97,7 @@ static string GetRepoName(string link)
     return "Repository";
 }
 
-// 한 개 피드 처리
+// 피드 처리
 async Task CheckOneAsync(string feedUrl)
 {
     var feed = await FeedReader.ReadAsync(feedUrl);
@@ -127,7 +132,7 @@ async Task CheckOneAsync(string feedUrl)
     }
 }
 
-// 콜드 스타트 기능
+// 콜드 스타트
 var suppressOnStartup = config.GetValue("SuppressOnStartup", true);
 async Task PrimeLastIdsAsync()
 {
@@ -141,17 +146,17 @@ async Task PrimeLastIdsAsync()
             {
                 var id = latest.Id ?? $"{latest.Link}|{latest.Title}";
                 lastIds[url] = id;
-                Console.WriteLine($"🧊 primed: {url} -> {id}");
+                Console.WriteLine($"🧊 프라임(콜드 스타트)됨: {url} -> {id}");
             }
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"⚠️ prime failed ({url}): {ex.Message}");
+            Console.Error.WriteLine($"⚠️ 프라임(콜드 스타트) 실패 ({url}): {ex.Message}");
         }
     }
 }
 
-// 모든 피드 순회
+// 피드 전체 처리
 async Task CheckAllAsync()
 {
     foreach (var url in rssUrls)
@@ -161,15 +166,15 @@ async Task CheckAllAsync()
     }
 }
 
-// 최초 1회 + 주기 실행
+// 주기 실행
 _ = Task.Run(async () =>
 {
     if (suppressOnStartup)
     {
-        await PrimeLastIdsAsync(); // ← 처음엔 “현재 최신”만 기억 후 슬립
+        await PrimeLastIdsAsync();
     }
 
-    await CheckAllAsync(); // 즉시 한 번 체크 (프라임되어 있으면 스킵됨)
+    await CheckAllAsync(); // 프라임 시 스킵
     var timer = new PeriodicTimer(TimeSpan.FromMinutes(intervalMinutes));
     while (await timer.WaitForNextTickAsync())
     {
@@ -178,7 +183,7 @@ _ = Task.Run(async () =>
     }
 });
 
-// 헬스체크 엔드포인트 (Cloud Run 호환)
+// 엔드포인트
 var app = builder.Build();
 app.MapGet("/", () => "Hub2Cord running");
 await app.RunAsync();
