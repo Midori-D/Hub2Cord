@@ -6,10 +6,10 @@ obj/
 .vs/
 .vscode/
 
-# 로컬 전용 설정(깃에 올리지 말기)
-appsettings.Local.json
+# Json
+appsettings.json
 
-# 로그/잡파일
+# Log
 *.log
 Thumbs.db
 .DS_Store
