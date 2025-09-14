@@ -1,5 +1,5 @@
 # Hub2Cord
-깃허브 릴리즈 (.Atom 피드) → Discord 채널 알림 봇<br>
+깃허브 릴리즈 (.atom 피드) → Discord 채널 알림 봇<br>
 여러 플러그인(여러 RSS)도 각각 독립적으로 감지하여, 같은 채널로 공지할 수 있어요.
 
 # Features
@@ -17,8 +17,8 @@
 
 # Example
 ```
-📢 [CounterStrikeSharp] 새로운 버전이 나왔어요!💌
-🔗 https://github.com/roflmuffin/CounterStrikeSharp/releases/tag/v1.0.xxx
+📢 [Hub2Cord] 새로운 버전이 나왔어요!💌
+🔗 https://github.com/Midori-D/Hub2Cord/releases/tag/v1.0.xxx
 📝 v1.0.xxx
 📅 20xx-0x-0x 12:00
 ```
@@ -26,3 +26,4 @@
 # Version
 - 1.0 배포
 - 1.1 Config 단순화, 코드 최적화
+- 1.2 On-Time Loop 추가
