@@ -29,11 +29,11 @@ GitHub Releases (Atom) → Discord channel notification bot.
 ## 🧪 Build
 - .NET 8 SDK
 
-## How to Use
+## 🚀 How to Use
 1. Rename appsettings.example.json to appsettings.json, then fill in the required fields.
 2. Run the app.
 
-## Example
+## 🖥️ Example
 ```
 📢 [Hub2Cord] A new version is out! 💌
 🔗 https://github.com/Midori-D/Hub2Cord/releases/tag/v1.0.xxx
