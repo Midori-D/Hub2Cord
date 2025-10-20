@@ -1,4 +1,4 @@
-# 🎀 Hub2Cord
+# 🎀 Hub2Cord [GitHub Releases (Atom) -> Discord]
 GitHub Releases (Atom) → Discord channel notification bot.
 - **Flexible scheduling**: run exactly at the hour you want (e.g., every day at 09:00 KST) or every N hours aligned to the top of the hour.
 - **Cold start suppression**: remembers the last release per feed to avoid reposts.
