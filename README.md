@@ -1,29 +1,54 @@
-# Hub2Cord
-깃허브 릴리즈 (.atom 피드) → Discord 채널 알림 봇<br>
-여러 플러그인(여러 RSS)도 각각 독립적으로 감지하여, 같은 채널로 공지할 수 있어요.
+# 🎀 Hub2Cord
+GitHub Releases (Atom) → Discord channel notification bot.
+- **Flexible scheduling**: run exactly at the hour you want (e.g., every day at 09:00 KST) or every N hours aligned to the top of the hour.
+- **Cold start suppression**: remembers the last release per feed to avoid reposts.
 
-# Features
-- 깃허브 .atom 릴리즈 피드를 주기적으로 체크
-- **KST(한국시간)**으로 발행 시각 표시
-- 콜드 스타트(옵션): 실행 직후엔 조용, 새 릴리즈부터 알림
+## ✨ Features
+- Monitor one or more GitHub Releases Atom feeds.
+- “Cold start suppression” to prevent spam on the first launch.
 
-# Requirements
-- .NET 8 SDK
-- Discord 봇 토큰(봇이 채널에 글쓰기 권한 필요)
+## ⚙️ Config (appsettings.json)
 
-# How to Use
-1. appsettings.example.json을 appsettings.json로 수정 후 빈칸 채우기
-2. 실행하기
-
-# Example
+```json
+{
+  "Discord": {
+    "BotToken": "Bot_Token",
+    "ChannelId": "Channel_ID"
+  },
+  "SuppressOnStartup": true,
+  "RunEveryHours": 3,
+  "StartHour": 9,
+  "TimeZoneId": "Asia/Seoul",
+  "RssUrls": [
+    "https://github.com/Midori-D/Hub2Cord/releases.atom",
+    "https://github.com/Midori-D/CS2_ForceNames/releases.atom"
+  ]
+}
 ```
-📢 [Hub2Cord] 새로운 버전이 나왔어요!💌
+
+## 🧪 Build
+- .NET 8 SDK
+
+## How to Use
+1. Rename appsettings.example.json to appsettings.json, then fill in the required fields.
+2. Run the app.
+
+## Example
+```
+📢 [Hub2Cord] A new version is out! 💌
 🔗 https://github.com/Midori-D/Hub2Cord/releases/tag/v1.0.xxx
 📝 v1.0.xxx
 📅 20xx-0x-0x 12:00
 ```
 
-# Version
-- 1.0 배포
-- 1.1 Config 단순화, 코드 최적화
-- 1.2 On-Time Loop 추가
+## 📝 Changelog
+- 1.0 Initial release
+- 1.1 Simplified config, optimized code
+- 1.2 Added On-Time Loop
+- 1.3 Added Flexible scheduling
+
+## 🙏 Credits
+- Midori server ops team
+
+## 📄 License
+- MIT
