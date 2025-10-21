@@ -1,4 +1,5 @@
 using CodeHollow.FeedReader;
+using Microsoft.Extensions.Configuration;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -15,16 +16,19 @@ Console.WriteLine($"⏳ Hub2Cord v{ver} 실행...");
 
 var config = builder.Configuration;
 
-// BotToken, ChannelId, intervalMinutes
+// Load appsettings.json
 var token = config["Discord:BotToken"]
              ?? Environment.GetEnvironmentVariable("discord_bot_token")
              ?? Environment.GetEnvironmentVariable("DISCORD_BOT_TOKEN");
 var channelId = config["Discord:ChannelId"]
              ?? Environment.GetEnvironmentVariable("DISCORD_CHANNEL_ID");
-var intervalMinutes = config.GetValue("CheckIntervalMinutes", 180);
+var suppressOnStartup = config.GetValue<bool>("SuppressOnStartup", true);
+var runEveryHours = config.GetValue<int>("RunEveryHours", 3);
+var startHour = config.GetValue<int>("StartHour", 9);
+var tz = ResolveTz(config["TimeZoneId"]);
 
 var rssUrls = config.GetSection("RssUrls").Get<string[]>()
-           ?? new[] { config["RssUrl"] ?? "https://github.com/roflmuffin/CounterStrikeSharp/releases.atom" };
+           ?? new[] { config["RssUrl"] ?? "https://github.com/Midori-D/Hub2Cord/releases.atom" };
 
 // Error Code
 if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(channelId))
@@ -36,13 +40,13 @@ if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(channelId))
 // HTTP Settings
 var http = new HttpClient();
 http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bot", token);
-http.DefaultRequestHeaders.UserAgent.ParseAdd("Hub2Cord/1.0 (+feed -> discord)");
+http.DefaultRequestHeaders.UserAgent.ParseAdd("Hub2Cord/1.3");
 http.Timeout = TimeSpan.FromSeconds(15);
 
 // LastId Memory cache
 var lastIds = new Dictionary<string, string?>();
 
-// Date Setting(KST)
+// UTC → KST
 static string GetKstStamp(CodeHollow.FeedReader.FeedItem latest)
 {
     DateTimeOffset? published = null;
@@ -82,7 +86,40 @@ static string GetKstStamp(CodeHollow.FeedReader.FeedItem latest)
     return publishedKst.ToString("yyyy-MM-dd HH:mm");
 }
 
-// Extract Repo Name
+static TimeZoneInfo ResolveTz(string? timeZoneId)
+{
+    if (!string.IsNullOrWhiteSpace(timeZoneId))
+    {
+        try { return TimeZoneInfo.FindSystemTimeZoneById(timeZoneId); }
+        catch { /* Local 사용 */ }
+    }
+    return TimeZoneInfo.Local;
+}
+static int Mod(int a, int m) => ((a % m) + m) % m;
+
+// Time Calculation
+static TimeSpan DelayUntilNextAlignedHour(int everyHours, int startHour, TimeZoneInfo tz)
+{
+    if (everyHours <= 0) everyHours = 1;
+    startHour = Mod(startHour, 24);
+    var anchor = Mod(startHour, everyHours);
+
+    var nowUtc = DateTimeOffset.UtcNow;
+    var nowLoc = TimeZoneInfo.ConvertTime(nowUtc, tz);
+
+    var next = new DateTimeOffset(
+        nowLoc.Year, nowLoc.Month, nowLoc.Day, nowLoc.Hour, 0, 0, tz.GetUtcOffset(nowLoc))
+        .AddHours(1);
+
+    while (Mod(next.Hour - anchor, everyHours) != 0)
+        next = next.AddHours(1);
+
+    var nextUtc = TimeZoneInfo.ConvertTime(next, TimeZoneInfo.Utc);
+    var delay = nextUtc - nowUtc;
+    return delay <= TimeSpan.Zero ? TimeSpan.FromSeconds(1) : delay;
+}
+
+// Get Repo Name
 static string GetRepoName(string link)
 {
     try
@@ -130,7 +167,6 @@ async Task CheckOneAsync(string feedUrl)
 }
 
 // Cold Start
-var suppressOnStartup = config.GetValue("SuppressOnStartup", true);
 async Task PrimeLastIdsAsync()
 {
     foreach (var url in rssUrls)
@@ -163,31 +199,20 @@ async Task CheckAllAsync()
     }
 }
 
-static TimeSpan DelayUntilNextTopOfHour()
-{
-    var now = DateTimeOffset.Now; // Server Local Time
-    var next = new DateTimeOffset(now.Year, now.Month, now.Day, now.Hour, 0, 0, now.Offset).AddHours(1);
-    var delay = next - now;
-    return delay <= TimeSpan.Zero ? TimeSpan.FromSeconds(1) : delay;
-}
-
 // Task Run
 _ = Task.Run(async () =>
 {
     if (suppressOnStartup)
-    {
         await PrimeLastIdsAsync();
-    }
 
-    // First Run CSheck
-    await CheckAllAsync();
+    // First Start
+    try { await CheckAllAsync(); } catch (Exception ex) { Console.Error.WriteLine(ex); }
 
-    // On-Time Loop
     while (true)
     {
         try
         {
-            await Task.Delay(DelayUntilNextTopOfHour());
+            await Task.Delay(DelayUntilNextAlignedHour(runEveryHours, startHour, tz));
             await CheckAllAsync();
         }
         catch (Exception ex)
