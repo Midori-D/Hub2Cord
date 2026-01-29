@@ -4,10 +4,10 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>Hub2Cord</RootNamespace>
-    <Version>1.3</Version>
+    <Version>1.4</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CodeHollow.FeedReader" Version="1.2.3" />
+    <PackageReference Include="CodeHollow.FeedReader" Version="1.2.6" />
   </ItemGroup>
 </Project>
