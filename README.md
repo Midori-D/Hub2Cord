@@ -52,21 +52,21 @@ A tiny bot that watches **GitHub Releases Atom feeds** and posts new release not
 ## 📝 Changelog
 
 ```
-## [1.4] - 2026.01.29
-- Added persistent hub2cord_state.json 
+## [1.4] - 2026.01.31
 - Added SmartPrime
+- Optimized code
 
 ## [1.3]
-- 1.3 Added Flexible scheduling
+- Added Flexible scheduling
 
 ## [1.2]
-- 1.2 Added On-Time Loop
+- Added On-Time Loop
 
 ## [1.1]
-- 1.1 Simplified config, optimized code
+- Simplified config, optimized code
 
 ## [1.0]
-- 1.0 Initial release
+- Initial release
 ```
 
 ## 🙏 Credits
