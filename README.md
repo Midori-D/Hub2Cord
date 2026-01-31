@@ -31,7 +31,8 @@ A tiny bot that watches **GitHub Releases Atom feeds** and posts new release not
 * **SmartPrime**: If `true`, Enables restart-safe deduplication. Hub2Cord stores the last processed release ID per feed in "StateFilePath" and restores it on startup, preventing duplicate/spam notifications after the server goes down and comes back up.
 * **RunEveryHours**: Run interval in hours (aligned to the top of the hour).
 * **StartHour**: Alignment anchor hour (0–23).
-* Example: 'StartHour=9', 'RunEveryHours=24' ⇒ runs at 09:00 every day.
+<br /> Example: 'StartHour=9', 'RunEveryHours=24' ⇒ runs at 09:00 every day.
+* **TimeZoneId**: For now, only 'Asia/Seoul' is supported. Support for other time zones will be added in a future update.
 * **StateFilePath**: Path to the state JSON file (optional). Default: 'hub2cord_state.json' next to the app.
 
 ## 🧪 Build
